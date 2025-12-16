@@ -129,6 +129,7 @@ body {
     font-weight: 700;
     background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -442,6 +443,7 @@ body {
     margin-bottom: var(--spacing-sm);
     background: linear-gradient(90deg, #fff, var(--accent-blue));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
