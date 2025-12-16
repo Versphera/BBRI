@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BBRI.JK Stock Prediction Dashboard</title>
+    <meta name="description" content="Professional dashboard for BBRI.JK stock price prediction using AI">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0"
+        rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {{ bokeh_resources | safe }}
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo"><svg viewBox="0 0 24 24" fill="none">
+                        <path d="M3 17L9 11L13 15L21 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                        <path d="M17 7H21V11" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg></div>
+                <div class="logo-text"><span class="brand-name">BBRI.JK</span><span class="brand-subtitle">Prediksi
+                        Saham Bank BRI</span></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">
+                    <span class="nav-title">Menu</span>
+                    <ul class="nav-list">
+                        <li class="nav-item active"><a href="#dashboard" class="nav-link"><span
+                                    class="material-symbols-outlined">dashboard</span><span>Dashboard</span></a></li>
+                        <li class="nav-item"><a href="#chart" class="nav-link"><span
+                                    class="material-symbols-outlined">candlestick_chart</span><span>Chart</span></a>
+                        </li>
+                        <li class="nav-item"><a href="#predictions" class="nav-link"><span
+                                    class="material-symbols-outlined">query_stats</span><span>Predictions</span></a>
+                        </li>
+                    </ul>
+                </div>
+                <div class="nav-section">
+                    <span class="nav-title">Info</span>
+                    <ul class="nav-list">
+                        <li class="nav-item"><a href="#about" class="nav-link"><span
+                                    class="material-symbols-outlined">info</span><span>About</span></a></li>
+                        <li class="nav-item"><a href="#team" class="nav-link"><span
+                                    class="material-symbols-outlined">groups</span><span>Team</span></a></li>
+                    </ul>
+                </div>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="model-info"><span class="material-symbols-outlined">smart_toy</span>
+                    <div class="model-details"><span class="model-name">TFT Model</span><span class="model-status"><span
+                                class="status-dot"></span>Active</span></div>
+                </div>
+            </div>
+        </aside>
+        <!-- Main Wrapper -->
+        <div class="main-wrapper">
+            <header class="header">
+                <div class="header-left">
+                    <button class="menu-toggle" id="menuToggle"><span
+                            class="material-symbols-outlined">menu</span></button>
+                    <div class="page-title">
+                        <h1>Dashboard</h1>
+                        <div class="breadcrumb"><span>Home</span><span class="separator">/</span><span
+                                class="current">Prediction</span></div>
+                    </div>
+                </div>
+                <div class="header-right">
+                    <div class="stock-badge">
+                        <div class="stock-icon"><span class="material-symbols-outlined">trending_up</span></div>
+                        <div class="stock-info"><span class="ticker">BBRI.JK</span><span class="exchange">IDX</span>
+                        </div>
+                    </div>
+                    <div class="last-update"><span class="material-symbols-outlined">schedule</span>
+                        <div class="update-info"><span class="label">Updated</span><span class="value">{{ last_update
+                                }}</span></div>
+                    </div>
+                    <button class="refresh-btn" onclick="location.reload()"><span
+                            class="material-symbols-outlined">refresh</span></button>
+                </div>
+            </header>
+            <main class="main-content" id="dashboard">
+                <!-- Welcome Banner -->
+                <section class="welcome-banner">
+                    <div class="banner-content">
+                        <div class="banner-text">
+                            <h2>Prediksi Saham Bank BRI</h2>
+                            <p>Sistem prediksi harga saham menggunakan model <strong>Temporal Fusion
+                                    Transformer</strong></p>
+                            <div class="banner-tags"><span class="tag">🤖 Deep-Learning</span><span class="tag">📈
+                                    7-Day</span><span class="tag">📊 Real-time</span></div>
+                        </div>
+                        <div class="banner-illustration">
+                            <div class="floating-card c1"><span class="material-symbols-outlined">analytics</span></div>
+                            <div class="floating-card c2"><span class="material-symbols-outlined">monitoring</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Summary Cards -->
+                <section class="summary-section">
+                    <div class="section-header">
+                        <h2><span class="material-symbols-outlined">monitoring</span>Key Metrics</h2>
+                    </div>
+                    <div class="summary-grid">
+                        <div class="summary-card current-price">
+                            <div class="card-icon"><span class="material-symbols-outlined">payments</span></div>
+                            <div class="card-content"><span class="card-label">Current Price</span><span
+                                    class="card-value">Rp {{ "{:,.0f}".format(summary_stats.last_price) }}</span></div>
+                        </div>
+                        <div class="summary-card prediction-avg">
+                            <div class="card-icon"><span class="material-symbols-outlined">auto_graph</span></div>
+                            <div class="card-content"><span class="card-label">Predicted Avg</span><span
+                                    class="card-value">Rp {{ "{:,.0f}".format(summary_stats.pred_avg) }}</span></div>
+                        </div>
+                        <div class="summary-card prediction-range">
+                            <div class="card-icon"><span class="material-symbols-outlined">swap_vert</span></div>
+                            <div class="card-content"><span class="card-label">Pred Range</span><span
+                                    class="card-value range">{{ "{:,.0f}".format(summary_stats.pred_min) }} - {{
+                                    "{:,.0f}".format(summary_stats.pred_max) }}</span></div>
+                        </div>
+                        <div class="summary-card trend {{ summary_stats.trend }}">
+                            <div class="card-icon">{% if summary_stats.trend == 'up' %}<span
+                                    class="material-symbols-outlined">trending_up</span>{% else %}<span
+                                    class="material-symbols-outlined">trending_down</span>{% endif %}</div>
+                            <div class="card-content"><span class="card-label">7-Day Change</span><span
+                                    class="card-value change {{ summary_stats.trend }}">{{ "+" if summary_stats.change >
+                                    0 else "" }}{{ "{:.2f}".format(summary_stats.change) }}%</span></div>
+                        </div>
+                    </div>
+                </section>
+                <!-- Chart Section -->
+                <section class="chart-section" id="chart">
+                    <div class="section-header">
+                        <h2><span class="material-symbols-outlined">candlestick_chart</span>Price Chart</h2>
+                        <div class="chart-legend"><span class="legend-item historical"><span
+                                    class="dot"></span>Historical</span><span class="legend-item prediction"><span
+                                    class="dot"></span>Prediction</span></div>
+                    </div>
+                    <div class="chart-container">{{ bokeh_div | safe }}</div>{{ bokeh_script | safe }}
+                </section>
+                <!-- Prediction Table -->
+                <section class="table-section" id="predictions">
+                    <div class="section-header">
+                        <h2><span class="material-symbols-outlined">table_chart</span>Prediction Details</h2>
+                    </div>
+                    <div class="table-container">
+                        <table class="prediction-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Day</th>
+                                    <th>Price</th>
+                                    <th>Change</th>
+                                    <th>Daily</th>
+                                </tr>
+                            </thead>
+                            <tbody>{% for pred in predictions %}<tr>
+                                    <td class="date">{{ pred.date }}</td>
+                                    <td class="day">{{ pred.day }}</td>
+                                    <td class="price">Rp {{ "{:,.0f}".format(pred.price) }}</td>
+                                    <td
+                                        class="change {{ 'up' if pred.change > 0 else 'down' if pred.change < 0 else 'neutral' }}">
+                                        <span class="arrow">{{ "↑" if pred.change > 0 else "↓" if pred.change < 0
+                                                else "→" }}</span>{{ "{:.2f}".format(pred.change) }}%
+                                    </td>
+                                    <td
+                                        class="daily-change {{ 'up' if pred.daily_change > 0 else 'down' if pred.daily_change < 0 else 'neutral' }}">
+                                        {{ "+" if pred.daily_change > 0 else "" }}{{ "{:.2f}".format(pred.daily_change)
+                                        }}%</td>
+                                </tr>{% endfor %}</tbody>
+                        </table>
+                    </div>
+                </section>
+
+                <!-- About Section -->
+                <section class="about-section" id="about">
+                    <div class="section-header">
+                        <h2><span class="material-symbols-outlined">info</span>About Model</h2>
+                    </div>
+                    <div class="about-grid">
+                        <div class="about-card">
+                            <div class="about-icon"><span class="material-symbols-outlined">psychology</span></div>
+                            <h3>Deep Learning</h3>
+                            <p>Transformer architecture for time-series</p>
+                        </div>
+                        <div class="about-card">
+                            <div class="about-icon"><span class="material-symbols-outlined">history</span></div>
+                            <h3>60 Days Input</h3>
+                            <p>Analyzes historical data patterns</p>
+                        </div>
+                        <div class="about-card">
+                            <div class="about-icon"><span class="material-symbols-outlined">event</span></div>
+                            <h3>7 Days Forecast</h3>
+                            <p>Multi-step ahead prediction</p>
+                        </div>
+                        <div class="about-card">
+                            <div class="about-icon"><span class="material-symbols-outlined">speed</span></div>
+                            <h3>Real-time Data</h3>
+                            <p>Live data from Yahoo Finance</p>
+                        </div>
+                    </div>
+                </section>
+                <!-- Team Section -->
+                <section class="team-section" id="team">
+                    <div class="section-header">
+                        <h2><span class="material-symbols-outlined">groups</span>Team</h2>
+                    </div>
+                    <div class="team-card">
+                        <div class="team-badge"><span class="material-symbols-outlined">school</span><span>Kelompok 3 -
+                                Tugas Akhir</span></div>
+                        <div class="team-members">
+                            <div class="member">
+                                <span class="material-symbols-outlined">person</span>
+                                <div class="member-info">
+                                    <span class="member-name">Fariq Ahnaf Syahlan</span>
+                                    <span class="member-nim">22670106</span>
+                                </div>
+                            </div>
+                            <div class="member">
+                                <span class="material-symbols-outlined">person</span>
+                                <div class="member-info">
+                                    <span class="member-name">Shinta Arum Imaniyah</span>
+                                    <span class="member-nim">22670112</span>
+                                </div>
+                            </div>
+                            <div class="member">
+                                <span class="material-symbols-outlined">person</span>
+                                <div class="member-info">
+                                    <span class="member-name">Lucy Nurianti</span>
+                                    <span class="member-nim">22670142</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+            <footer class="footer">
+                <div class="footer-content">
+                    <p>BBRI.JK Stock Prediction | Powered by TFT Model</p>
+
+                </div>
+            </footer>
+        </div>
+    </div>
+    <script>
+        const menuToggle = document.getElementById('menuToggle'), sidebar = document.getElementById('sidebar');
+        menuToggle.addEventListener('click', () => { sidebar.classList.toggle('collapsed'); document.querySelector('.main-wrapper').classList.toggle('expanded') });
+        document.querySelectorAll('.nav-link').forEach(l => { l.addEventListener('click', e => { e.preventDefault(); const t = l.getAttribute('href'), s = document.querySelector(t); document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active')); l.parentElement.classList.add('active'); s && s.scrollIntoView({ behavior: 'smooth' }) }) });
+    </script>
+</body>
+
+</html>
